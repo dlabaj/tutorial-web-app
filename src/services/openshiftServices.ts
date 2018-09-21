@@ -1,7 +1,12 @@
-import axios from 'axios';
-import ClientOAuth2 from 'client-oauth2';
+import Axios from 'axios';
+import * as ClientOAuth2 from 'client-oauth2';
 
-axios.interceptors.response.use(
+// Add OPENSHIFT_CONFIG property to window.
+declare global {
+  interface Window { OPENSHIFT_CONFIG: any; }
+}
+
+Axios.interceptors.response.use(
   response => response,
   err => {
     if (err.response.status === 401) {
@@ -11,53 +16,60 @@ axios.interceptors.response.use(
   }
 );
 
-class OpenShiftUser {
-  constructor(uid, username) {
-    this.uid = uid;
-    this.username = username;
-  }
+interface IOpenShiftUser {
+  uid: string;
+  username: string;
 }
 
-const OpenShiftWatchEvents = Object.freeze({
-  MODIFIED: 'MODIFIED',
-  ADDED: 'ADDED',
-  DELETED: 'DELETED',
-  OPENED: 'OPENED',
-  CLOSED: 'CLOSED'
-});
+enum OpenShiftWatchEvents {
+  MODIFIED = 'MODIFIED',
+  ADDED = 'ADDED',
+  DELETED = 'DELETED',
+  OPENED = 'OPENED',
+  CLOSED = 'CLOSED'
+};
+
+interface IOpenShiftEvent {
+  type: OpenShiftWatchEvents;
+  payload?: any;
+}
 
 class OpenShiftWatchEventListener {
-  _handler = () => {};
-  _errorHandler = () => {};
 
-  constructor(socket) {
-    this._socket = socket;
+  private socket: WebSocket;
+
+  constructor(socket: WebSocket) {
+    this.socket = socket;
   }
 
-  init() {
-    this._socket.onmessage = event => {
+  // TODO: Add code for event handler and error handler
+  public handler = (event: IOpenShiftEvent) => { return; };
+  public errorHandler = (error: Event) => { return ; };
+
+  public onEvent(handler: () => void) {
+    this.handler = handler;
+    return this;
+  }
+
+  public catch(errorHandler: () => void) {
+    this.errorHandler = errorHandler;
+    return this;
+  }
+
+  private init() {
+    this.socket.onmessage = event => {
       const data = JSON.parse(event.data);
-      this._handler({ type: data.type, payload: data.object });
+      this.handler({ type: data.type, payload: data.object });
     };
-    this._socket.oncreate = () => this._handler({ type: OpenShiftWatchEvents.OPENED });
-    this._socket.onclose = () => this._handler({ type: OpenShiftWatchEvents.CLOSED });
-    this._socket.onerror = err => this._errorHandler(err);
-    return this;
-  }
-
-  onEvent(handler) {
-    this._handler = handler;
-    return this;
-  }
-
-  catch(handler) {
-    this._errorHandler = handler;
+    this.socket.onopen = () => this.handler({ type: OpenShiftWatchEvents.OPENED });
+    this.socket.onclose = () => this.handler({ type: OpenShiftWatchEvents.CLOSED });
+    this.socket.onerror = err => this.errorHandler(err);
     return this;
   }
 }
 
 const getUser = () => {
-  let user;
+  let user: any;
   try {
     const userRaw = window.localStorage.getItem('OpenShiftUser');
     if (userRaw) {
@@ -78,7 +90,7 @@ const getUser = () => {
  * Saves the user to local storage for retrieval of the token later as needed
  * @param {User} user
  */
-const setUser = user => {
+const setUser = user: any => {
   if (!user) {
     window.localStorage.setItem('OpenShiftUser', null);
     return;
@@ -161,7 +173,7 @@ const getParameterByName = (name, url) => {
 
 const currentUser = () =>
   getUser().then(user =>
-    axios({
+    Axios({
       url: `${window.OPENSHIFT_CONFIG.masterUri}/oapi/v1/users/~`,
       headers: {
         authorization: `Bearer ${user.access_token}`
@@ -171,7 +183,7 @@ const currentUser = () =>
 
 const get = (res, name) =>
   getUser().then(user =>
-    axios({
+    Axios({
       url: `${window.OPENSHIFT_CONFIG.masterUri}/apis/${res.group}/${res.version}/namespaces/${res.namespace}/${
         res.name
       }/${name}`,
@@ -183,7 +195,7 @@ const get = (res, name) =>
 
 const list = res =>
   getUser().then(user =>
-    axios({
+    Axios({
       url: _buildRequestUrl(res),
       headers: {
         authorization: `Bearer ${user.access_token}`
@@ -199,7 +211,7 @@ const create = (res, obj) =>
       obj.apiVersion = `${res.group}/${res.version}`;
     }
 
-    return axios({
+    return Axios({
       url: requestUrl,
       method: 'POST',
       data: obj,
@@ -230,4 +242,4 @@ const _buildRequestUrl = res => `${_buildOpenShiftUrl(window.OPENSHIFT_CONFIG.ma
 
 const _buildWatchUrl = res => `${_buildOpenShiftUrl(window.OPENSHIFT_CONFIG.wssMasterUri, res)}?watch=true`;
 
-export { finishOAuth, currentUser, get, create, list, watch, OpenShiftWatchEvents };
+export { finishOAuth, currentUser, get, create, list, watch, OpenShiftWatchEvents, IOpenShiftEvent, IOpenShiftUser };

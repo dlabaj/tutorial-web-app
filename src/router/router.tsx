@@ -1,10 +1,10 @@
-import React from 'react';
+import * as React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { routes } from '../routes';
 
-class Router extends React.Component {
-  static renderRoutes() {
-    let redirectRoot = null;
+export default class Router extends React.Component {
+  public static renderRoutes() {
+    let redirectRoot: any = null;
 
     return {
       renderRoutes: routes().map(item => {
@@ -13,7 +13,7 @@ class Router extends React.Component {
         }
 
         if (item.redirect === true) {
-          redirectRoot = <Redirect from="/" to={item.to} />;
+          redirectRoot = <Redirect from='/' to={item.to} />;
         }
 
         return (
@@ -24,11 +24,11 @@ class Router extends React.Component {
     };
   }
 
-  render() {
+  public render(): JSX.Element {
     const { renderRoutes, redirectRoot } = Router.renderRoutes();
 
     return (
-      <div className="integr8ly-container">
+      <div className='integr8ly-container'>
         <Switch>
           {renderRoutes}
           {redirectRoot}
@@ -39,5 +39,3 @@ class Router extends React.Component {
 }
 
 export { Router };
-
-export default Router;

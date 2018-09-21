@@ -1,5 +1,5 @@
-import axios from 'axios';
-import cookies from 'js-cookie';
+import Axios from 'Axios';
+import * as cookies from 'js-cookie';
 import serviceConfig from './config';
 
 /**
@@ -23,7 +23,7 @@ import serviceConfig from './config';
  *     }
  */
 const checkUser = () =>
-  axios(
+  Axios(
     serviceConfig({
       url: process.env.REACT_APP_USER_SERVICE_CURRENT
     })
@@ -50,7 +50,7 @@ const checkUser = () =>
  *     }
  */
 const createUser = (data = {}) =>
-  axios(
+  Axios(
     serviceConfig(
       {
         method: 'post',
@@ -76,7 +76,7 @@ const createUser = (data = {}) =>
  *     }
  */
 const deleteUser = (data = {}) =>
-  axios(
+  Axios(
     serviceConfig({
       method: 'post',
       url: process.env.REACT_APP_USER_SERVICE_DELETE,
@@ -99,7 +99,7 @@ const deleteUser = (data = {}) =>
  *     }
  */
 const loginUser = (data = {}) =>
-  axios(
+  Axios(
     serviceConfig(
       {
         method: 'post',
@@ -131,7 +131,7 @@ const loginUser = (data = {}) =>
  *     }
  */
 const logoutUser = () =>
-  axios(
+  Axios(
     serviceConfig({
       method: 'post',
       url: process.env.REACT_APP_USER_SERVICE_LOGOUT
@@ -148,16 +148,16 @@ const logoutUser = () =>
  * @param config {Object}
  * @returns {Promise<any>}
  */
-const storeData = (data, remove = false, config = { extend: true }) =>
+const storeData = (data: any, remove: boolean = false, config: any = { extend: true }) =>
   new Promise(resolve => {
-    const cookieName = process.env.REACT_APP_AUTH_STORED;
-    const cookieExpire = Number.parseInt(process.env.REACT_APP_AUTH_STORED_EXPIRE, 10);
-    let cookieValue = cookies.get(cookieName);
+    const cookieName: string = process.env.REACT_APP_AUTH_STORED;
+    const cookieExpire: number = Number.parseInt(process.env.REACT_APP_AUTH_STORED_EXPIRE, 10);
+    let cookieValue: any;
 
     try {
-      cookieValue = JSON.parse(atob(cookieValue));
+      cookieValue = JSON.parse(atob(cookies.get(cookieName)));
     } catch (e) {
-      cookieValue = {};
+      cookieValue  = {};
     }
 
     if (remove) {
@@ -178,6 +178,7 @@ const storeData = (data, remove = false, config = { extend: true }) =>
     }
 
     return resolve(cookieValue);
+
   });
 
 /**
