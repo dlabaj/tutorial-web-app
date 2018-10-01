@@ -87,6 +87,8 @@ const setUser = user => {
   window.localStorage.setItem('currentUserName', this.username);
 };
 
+const logoutUser = () => window.localStorage.removeItem('OpenShiftUser');
+
 /**
  * Internal function to construct an oauth client from the oauth lib.
  */
@@ -272,4 +274,4 @@ const _buildRequestUrl = res => `${_buildOpenShiftUrl(window.OPENSHIFT_CONFIG.ma
 
 const _buildWatchUrl = res => `${_buildOpenShiftUrl(window.OPENSHIFT_CONFIG.wssMasterUri, res)}?watch=true`;
 
-export { finishOAuth, currentUser, get, create, list, watch, update, remove, OpenShiftWatchEvents };
+export { finishOAuth, currentUser, get, create, list, watch, update, remove, OpenShiftWatchEvents, logoutUser };

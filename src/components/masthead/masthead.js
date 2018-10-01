@@ -4,6 +4,7 @@ import { Icon, Masthead as PfMasthead, MenuItem } from 'patternfly-react';
 import { withRouter } from 'react-router-dom';
 import { connect, reduxActions, store } from '../../redux';
 import { aboutModalTypes } from '../../redux/constants';
+import { logoutUser } from '../../services/openshiftServices';
 import titleImg from '../../img/brand-alt-solutions-explorer.svg';
 
 class Masthead extends React.Component {
@@ -23,6 +24,7 @@ class Masthead extends React.Component {
 
   onLogoutUser = () => {
     // TBD 092718 - placeholder until logout is implemented
+    logoutUser();
     window.location.href = '/';
   };
 
