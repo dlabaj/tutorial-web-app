@@ -25,7 +25,8 @@ class Masthead extends React.Component {
   onLogoutUser = () => {
     // TBD 092718 - placeholder until logout is implemented
     logoutUser();
-    window.location.href = '/';
+    // window.location.href = '/';
+    window.location.reload();
   };
 
   onTitleClick = () => {
