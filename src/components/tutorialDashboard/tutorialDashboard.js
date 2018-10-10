@@ -1,4 +1,4 @@
-import React from 'react';
+
 import PropTypes from 'prop-types';
 import { CardGrid, Col, Row, Icon } from 'patternfly-react';
 import TutorialCard from '../tutorialCard/tutorialCard';
