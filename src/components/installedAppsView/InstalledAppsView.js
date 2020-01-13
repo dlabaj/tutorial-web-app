@@ -20,13 +20,15 @@ import { SERVICE_STATUSES, SERVICE_TYPES } from '../../redux/constants/middlewar
 class InstalledAppsView extends React.Component {
   state = {
     currentApp: undefined,
-    expanded: undefined
+    expanded: undefined,
+    runningApp: undefined
   };
 
   constructor(props) {
     super(props);
     this.state.currentApp = 0;
     this.state.expanded = [];
+    this.state.runningApp = '';
   }
 
   handleAppNameClicked = e => {
@@ -63,9 +65,11 @@ class InstalledAppsView extends React.Component {
             if (!this.getRouteForApp(app) || !this.isServiceProvisioned(app)) {
               return;
             }
+            // ? window.open(this.getRouteForApp(app).concat('/console'), '_blank')
+            // : window.open(this.getRouteForApp(app), '_blank');
             prettyName === 'Red Hat AMQ'
-              ? window.open(this.getRouteForApp(app).concat('/console'), '_blank')
-              : window.open(this.getRouteForApp(app), '_blank');
+              ? this.setState({ runningApp: this.getRouteForApp(app).concat('/console') })
+              : this.setState({ runningApp: this.getRouteForApp(app) });
           }}
           variant="secondary"
         >
@@ -215,7 +219,10 @@ class InstalledAppsView extends React.Component {
     <DataList aria-label="OpenShift service item" id={`openshift-service-item-${i}`}>
       <DataListItem
         className="integr8ly-installed-apps-view-list-item-enabled"
-        onClick={() => window.open(`${customApp.url}`, '_blank')}
+        onClick={() => {
+          // window.open(`${customApp.url}`, '_blank');
+          this.setState({ runningApp: customApp.url });
+        }}
         key={`openshift_console_${i}`}
         value={i}
         aria-labelledby={`openshift-service-item-${i}`}
@@ -438,6 +445,7 @@ class InstalledAppsView extends React.Component {
           <div className="integr8ly-installed-apps-view-panel-title pf-u-display-flex pf-u-align-items-center pf-u-mt-sm pf-u-box-shadow-md" />
           {appList}
         </div>
+        <iframe title="test" src={this.state.runningApp} />
         {/* 
         <div className="integr8ly-tutorial-dashboard-title pf-l-flex pf-u-py-sm">
           <span className="pf-l-flex pf-m-inline-flex">
